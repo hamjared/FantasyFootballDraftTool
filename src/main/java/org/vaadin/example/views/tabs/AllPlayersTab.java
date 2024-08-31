@@ -8,6 +8,7 @@ import org.vaadin.example.models.Player;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -19,10 +20,13 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @Slf4j
 public class AllPlayersTab extends VerticalLayout {
+
+    private static final List<Integer> byeWeekOptions = createByeWeekOptions();
 
     PlayerDataService playerDataService;
 
@@ -34,6 +38,7 @@ public class AllPlayersTab extends VerticalLayout {
     boolean showDrafted = false;
     String showPosition = "All";
     String searchText = "";
+    List<Integer> hideByeWeeks = new ArrayList<>();
 
     public AllPlayersTab(@Autowired PlayerDataService playerDataService) {
         this.playerDataService = playerDataService;
@@ -43,6 +48,14 @@ public class AllPlayersTab extends VerticalLayout {
         filteredPlayersProvider = new ListDataProvider<>(allPlayers);
 
         createPlayerTable();
+    }
+
+    private static List<Integer> createByeWeekOptions() {
+        List<Integer> byeWeeks = new ArrayList<>();
+        for (int i = 1; i < 18; i++) {
+            byeWeeks.add(i);
+        }
+        return byeWeeks;
     }
 
     private void createPlayerTable() {
@@ -62,9 +75,14 @@ public class AllPlayersTab extends VerticalLayout {
         TextField searchPlayersField = new TextField("Search");
         searchPlayersField.setClearButtonVisible(true);
 
+        MultiSelectComboBox<Integer> ignoreByeWeeksComboBox = new MultiSelectComboBox<>("Ignore Bye Weeks");
+        ignoreByeWeeksComboBox.setItems(byeWeekOptions);
+        ignoreByeWeeksComboBox.setClearButtonVisible(true);
+
         filterLayout.add(filterButtonGroup);
         filterLayout.add(draftedFilterGroup);
         filterLayout.add(searchPlayersField);
+        filterLayout.add(ignoreByeWeeksComboBox);
 
         add(filterLayout);
 
@@ -90,6 +108,11 @@ public class AllPlayersTab extends VerticalLayout {
         searchPlayersField.setValueChangeMode(ValueChangeMode.EAGER);
         searchPlayersField.addValueChangeListener(event -> {
             searchText = event.getValue();
+            onFilterChange();
+        });
+
+        ignoreByeWeeksComboBox.addValueChangeListener(event -> {
+            hideByeWeeks = event.getValue().stream().toList();
             onFilterChange();
         });
 
@@ -127,6 +150,7 @@ public class AllPlayersTab extends VerticalLayout {
             boolean draftedFilterMatch = true;
             boolean positionFilterMatch = true;
             boolean searchMatches = true;
+            boolean byeWeekMatches = true;
 
             if (showDrafted) {
                 draftedFilterMatch = item.isHasBeenDrafted();
@@ -145,7 +169,9 @@ public class AllPlayersTab extends VerticalLayout {
                         .anyMatch(text -> item.getName().toLowerCase().contains(text.toLowerCase()));
             }
 
-            return draftedFilterMatch && positionFilterMatch && searchMatches;
+            byeWeekMatches = !hideByeWeeks.stream().anyMatch(byeWeek -> byeWeek.equals(item.getByeWeek()));
+
+            return draftedFilterMatch && positionFilterMatch && searchMatches && byeWeekMatches;
         });
     }
 
