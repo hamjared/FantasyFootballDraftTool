@@ -64,7 +64,7 @@ public class AllPlayersTab extends VerticalLayout {
 
         RadioButtonGroup<String> filterButtonGroup = new RadioButtonGroup<>();
         filterButtonGroup.setLabel("Position Filter");
-        filterButtonGroup.setItems("All", "QB", "RB", "TE", "K", "DST");
+        filterButtonGroup.setItems("All", "QB", "RB", "WR", "TE", "K", "DST");
         filterButtonGroup.setValue("All");
 
         RadioButtonGroup<String> draftedFilterGroup = new RadioButtonGroup<>();
