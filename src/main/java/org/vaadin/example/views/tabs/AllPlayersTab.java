@@ -30,6 +30,8 @@ public class AllPlayersTab extends VerticalLayout {
 
     PlayerDataService playerDataService;
 
+    PlayerQueueTab myPlayerQueueTab;
+
     List<Player> allPlayers;
     List<Player> filteredPlayers;
 
@@ -40,12 +42,13 @@ public class AllPlayersTab extends VerticalLayout {
     String searchText = "";
     List<Integer> hideByeWeeks = new ArrayList<>();
 
-    public AllPlayersTab(@Autowired PlayerDataService playerDataService) {
+    public AllPlayersTab(@Autowired PlayerDataService playerDataService, PlayerQueueTab playerQueueTab) {
         this.playerDataService = playerDataService;
 
         this.allPlayers = playerDataService.getPlayers();
         filteredPlayers = allPlayers;
         filteredPlayersProvider = new ListDataProvider<>(allPlayers);
+        myPlayerQueueTab = playerQueueTab;
 
         createPlayerTable();
     }
@@ -126,11 +129,9 @@ public class AllPlayersTab extends VerticalLayout {
             grid.getDataProvider().refreshAll();
         });
 
-        Button draftToMyTeamButton = new Button("Draft to My Team");
-        draftToMyTeamButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button draftToMyTeamButton = new Button("Add to Queue");
         draftToMyTeamButton.addClickListener(clickEvent -> {
-            setPlayersDrafted(grid.getSelectedItems());
-            grid.getDataProvider().refreshAll();
+            addPlayerToQueue(grid.getSelectedItems());
         });
 
         Button undraftButton = new Button("Undraft Player");
@@ -139,11 +140,17 @@ public class AllPlayersTab extends VerticalLayout {
             grid.getDataProvider().refreshAll();
         });
 
-        horizLayout.add(setPlayerDraftedButton, undraftButton);
+        horizLayout.add(setPlayerDraftedButton, draftToMyTeamButton, undraftButton);
 
         onFilterChange();
 
         add(grid, horizLayout);
+    }
+
+    private void addPlayerToQueue(Set<Player> selectedItems) {
+        for (Player p : selectedItems) {
+            myPlayerQueueTab.addPlayer(p);
+        }
     }
 
     private void onFilterChange() {
