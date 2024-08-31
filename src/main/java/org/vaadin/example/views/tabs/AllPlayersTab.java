@@ -47,6 +47,8 @@ public class AllPlayersTab extends VerticalLayout {
 
     private void createPlayerTable() {
 
+        HorizontalLayout filterLayout = new HorizontalLayout();
+
         RadioButtonGroup<String> filterButtonGroup = new RadioButtonGroup<>();
         filterButtonGroup.setLabel("Position Filter");
         filterButtonGroup.setItems("All", "QB", "RB", "TE", "K", "DST");
@@ -60,9 +62,11 @@ public class AllPlayersTab extends VerticalLayout {
         TextField searchPlayersField = new TextField("Search");
         searchPlayersField.setClearButtonVisible(true);
 
-        add(filterButtonGroup);
-        add(draftedFilterGroup);
-        add(searchPlayersField);
+        filterLayout.add(filterButtonGroup);
+        filterLayout.add(draftedFilterGroup);
+        filterLayout.add(searchPlayersField);
+
+        add(filterLayout);
 
         Grid<Player> grid = new Grid<>(Player.class, false);
         grid.addColumn(Player::getName).setHeader("Name").setKey("name");
