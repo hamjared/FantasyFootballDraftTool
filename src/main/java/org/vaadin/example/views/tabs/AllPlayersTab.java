@@ -89,6 +89,7 @@ public class AllPlayersTab extends VerticalLayout {
         Grid<Player> grid = new Grid<>(Player.class, false);
         grid.addColumn(Player::getName).setHeader("Name").setKey("name");
         grid.addColumn(Player::getPosition).setHeader("Pos").setKey("pos");
+        grid.addColumn(Player::getTeam).setHeader("Team").setSortable(true);
         grid.addColumn(Player::getByeWeek).setHeader("Bye").setKey("bye");
         grid.addColumn(Player::getProjectedPoints).setHeader("Proj.").setKey("proj").setSortable(true);
         grid.addColumn(Player::getAverageDraftPosition).setHeader("ADP").setKey("ADP").setSortable(true);
@@ -138,7 +139,7 @@ public class AllPlayersTab extends VerticalLayout {
             grid.getDataProvider().refreshAll();
         });
 
-        horizLayout.add(setPlayerDraftedButton, draftToMyTeamButton, undraftButton);
+        horizLayout.add(setPlayerDraftedButton, undraftButton);
 
         onFilterChange();
 

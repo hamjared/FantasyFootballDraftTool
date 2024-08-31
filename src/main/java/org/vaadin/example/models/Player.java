@@ -33,6 +33,8 @@ public class Player {
     @JsonProperty("ADP")
     double averageDraftPosition;
 
+    String team;
+
     boolean hasBeenDrafted = false;
 
 }

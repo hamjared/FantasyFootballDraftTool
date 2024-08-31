@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import org.springframework.stereotype.Service;
 import org.vaadin.example.models.Player;
+import org.vaadin.example.models.PlayerWithTeam;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +22,8 @@ import java.io.File;
 @Slf4j
 @Service
 public class PlayerDataService {
+
+    private static HashMap<String, String> playerTeamMapping = null;
 
     private static final String[] fileNames = { "QBs.json", "RBs.json", "WRs.json", "TEs.json", "Ks.json",
             "DSTs.json" };
@@ -58,10 +61,38 @@ public class PlayerDataService {
 
         playersMap = new HashMap<>();
         for (Player player : players) {
+            String team = findPlayerTeam(player);
+            player.setTeam(team);
             playersMap.put(player, player);
         }
 
         return players;
+    }
+
+    private String findPlayerTeam(Player player) {
+        if (playerTeamMapping == null || playerTeamMapping.isEmpty()) {
+            initializePlayerTeamMapping();
+        }
+
+        return playerTeamMapping.get(player.getName().toLowerCase().trim());
+
+    }
+
+    private void initializePlayerTeamMapping() {
+        InputStream is = new ClassPathResource("classpath:players/allPlayerListWithTeams.json").getInputStream();
+
+        PlayerWithTeam[] playersArray;
+        try {
+            playersArray = objectMapper.readValue(is, PlayerWithTeam[].class);
+        } catch (IOException e) {
+            log.error("Error reading players from input stream for team mapping file : {}", e.getMessage());
+            throw new RuntimeException();
+        }
+
+        playerTeamMapping = new HashMap<>();
+        for (PlayerWithTeam p : playersArray) {
+            playerTeamMapping.put(p.getPlayerName().toLowerCase().trim(), p.getTEAM());
+        }
     }
 
     private List<Player> loadFromFile() {
