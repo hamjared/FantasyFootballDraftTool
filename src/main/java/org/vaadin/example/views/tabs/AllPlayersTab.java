@@ -174,7 +174,11 @@ public class AllPlayersTab extends VerticalLayout {
 
             if (!searchText.trim().isEmpty()) {
                 searchMatches = Arrays.asList(searchText.split(" ")).stream()
-                        .anyMatch(text -> item.getName().toLowerCase().contains(text.toLowerCase()));
+                        .anyMatch(text -> {
+                            String team = item.getTeam() != null ? item.getTeam() : "";
+                            return (item.getName().toLowerCase().contains(text.toLowerCase())
+                                    || team.toLowerCase().contains(text.toLowerCase()));
+                        });
             }
 
             byeWeekMatches = !hideByeWeeks.stream().anyMatch(byeWeek -> byeWeek.equals(item.getByeWeek()));
