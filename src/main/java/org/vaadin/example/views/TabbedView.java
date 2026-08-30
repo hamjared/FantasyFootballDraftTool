@@ -20,8 +20,11 @@ public class TabbedView extends Div {
 
         tabs.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
 
-        tabs.add("All Available Players", new Div(new AllPlayersTab(playerDataService, playerQueueTab)));
+        MyTeamTab myTeamTab = new MyTeamTab(playerDataService);
+
+        tabs.add("All Available Players", new Div(new AllPlayersTab(playerDataService, playerQueueTab, myTeamTab)));
         tabs.add("My Queue", new Div(playerQueueTab));
+        tabs.add("My Team", new Div(myTeamTab));
 
         add(tabs);
     }

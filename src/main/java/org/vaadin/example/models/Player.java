@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(exclude = { "hasBeenDrafted" })
+@EqualsAndHashCode(exclude = { "hasBeenDrafted", "onMyTeam" })
 public class Player {
 
     @JsonProperty("Name")
@@ -36,5 +36,7 @@ public class Player {
     String team;
 
     boolean hasBeenDrafted = false;
+
+    boolean onMyTeam = false;
 
 }

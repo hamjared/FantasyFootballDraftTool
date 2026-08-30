@@ -31,6 +31,7 @@ public class AllPlayersTab extends VerticalLayout {
     PlayerDataService playerDataService;
 
     PlayerQueueTab myPlayerQueueTab;
+    MyTeamTab myTeamTab;
 
     List<Player> allPlayers;
     List<Player> filteredPlayers;
@@ -42,13 +43,15 @@ public class AllPlayersTab extends VerticalLayout {
     String searchText = "";
     List<Integer> hideByeWeeks = new ArrayList<>();
 
-    public AllPlayersTab(@Autowired PlayerDataService playerDataService, PlayerQueueTab playerQueueTab) {
+    public AllPlayersTab(@Autowired PlayerDataService playerDataService, PlayerQueueTab playerQueueTab,
+            MyTeamTab myTeamTab) {
         this.playerDataService = playerDataService;
 
         this.allPlayers = playerDataService.getPlayers();
         filteredPlayers = allPlayers;
         filteredPlayersProvider = new ListDataProvider<>(allPlayers);
         myPlayerQueueTab = playerQueueTab;
+        this.myTeamTab = myTeamTab;
 
         createPlayerTable();
     }
@@ -90,14 +93,20 @@ public class AllPlayersTab extends VerticalLayout {
         add(filterLayout);
 
         Grid<Player> grid = new Grid<>(Player.class, false);
-        grid.addColumn(Player::getName).setHeader("Name").setKey("name");
-        grid.addColumn(Player::getPosition).setHeader("Pos").setKey("pos");
-        grid.addColumn(Player::getTeam).setHeader("Team").setSortable(true);
-        grid.addColumn(Player::getByeWeek).setHeader("Bye").setKey("bye");
-        grid.addColumn(Player::getProjectedPoints).setHeader("Proj.").setKey("proj").setSortable(true);
-        grid.addColumn(Player::getAverageDraftPosition).setHeader("ADP").setKey("ADP").setSortable(true);
+        grid.addColumn(Player::getName).setHeader("Name").setKey("name").setAutoWidth(true).setFlexGrow(0);
+        grid.addColumn(Player::getPosition).setHeader("Pos").setKey("pos").setAutoWidth(true).setFlexGrow(0);
+        grid.addColumn(Player::getTeam).setHeader("Team").setSortable(true).setAutoWidth(true).setFlexGrow(0);
+        grid.addColumn(Player::getByeWeek).setHeader("Bye").setKey("bye").setAutoWidth(true).setFlexGrow(0);
+        grid.addColumn(Player::getProjectedPoints).setHeader("Proj.").setKey("proj").setSortable(true).setAutoWidth(true)
+                .setFlexGrow(0);
+        grid.addColumn(Player::getAverageDraftPosition).setHeader("ADP").setKey("ADP").setSortable(true)
+                .setAutoWidth(true).setFlexGrow(0);
+
+        grid.setWidthFull();
+        grid.setHeight("70vh");
 
         grid.setDataProvider(filteredPlayersProvider);
+        grid.recalculateColumnWidths();
 
         filterButtonGroup.addValueChangeListener(event -> {
             showPosition = event.getValue();
@@ -129,9 +138,16 @@ public class AllPlayersTab extends VerticalLayout {
             grid.getDataProvider().refreshAll();
         });
 
-        Button draftToMyTeamButton = new Button("Add to Queue");
-        draftToMyTeamButton.addClickListener(clickEvent -> {
+        Button addToQueueButton = new Button("Add to Queue");
+        addToQueueButton.addClickListener(clickEvent -> {
             addPlayerToQueue(grid.getSelectedItems());
+        });
+
+        Button draftToMyTeamButton = new Button("Draft to My Team");
+        draftToMyTeamButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        draftToMyTeamButton.addClickListener(clickEvent -> {
+            draftPlayersToMyTeam(grid.getSelectedItems());
+            grid.getDataProvider().refreshAll();
         });
 
         Button undraftButton = new Button("Undraft Player");
@@ -140,7 +156,7 @@ public class AllPlayersTab extends VerticalLayout {
             grid.getDataProvider().refreshAll();
         });
 
-        horizLayout.add(setPlayerDraftedButton, draftToMyTeamButton, undraftButton);
+        horizLayout.add(setPlayerDraftedButton, addToQueueButton, draftToMyTeamButton, undraftButton);
 
         onFilterChange();
 
@@ -150,6 +166,19 @@ public class AllPlayersTab extends VerticalLayout {
     private void addPlayerToQueue(Set<Player> selectedItems) {
         for (Player p : selectedItems) {
             myPlayerQueueTab.addPlayer(p);
+        }
+    }
+
+    private void draftPlayersToMyTeam(Set<Player> players) {
+        if (players == null || players.isEmpty()) {
+            return;
+        }
+
+        for (Player player : players) {
+            player.setHasBeenDrafted(true);
+            player.setOnMyTeam(true);
+            playerDataService.draftPlayerToMyTeam(player);
+            myTeamTab.addPlayer(player);
         }
     }
 
@@ -206,7 +235,9 @@ public class AllPlayersTab extends VerticalLayout {
 
         for (Player player : players) {
             player.setHasBeenDrafted(false);
-            playerDataService.setPlayerDrafted(player, false);
+            player.setOnMyTeam(false);
+            playerDataService.undraftPlayer(player);
+            myTeamTab.removePlayer(player);
         }
 
     }

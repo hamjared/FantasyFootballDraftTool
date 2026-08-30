@@ -113,6 +113,20 @@ public class PlayerDataService {
         savePlayersMap();
     }
 
+    public void draftPlayerToMyTeam(Player player) {
+        Player p = playersMap.get(player);
+        p.setHasBeenDrafted(true);
+        p.setOnMyTeam(true);
+        savePlayersMap();
+    }
+
+    public void undraftPlayer(Player player) {
+        Player p = playersMap.get(player);
+        p.setHasBeenDrafted(false);
+        p.setOnMyTeam(false);
+        savePlayersMap();
+    }
+
     private void savePlayersMap() {
         log.info("Saving to : {}", saveFileName);
 

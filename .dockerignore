@@ -1,0 +1,17 @@
+target/
+.idea/
+.vscode/
+.settings
+.project
+.classpath
+*.iml
+.DS_Store
+node_modules/
+src/main/frontend/generated/
+pnpmfile.js
+vite.generated.ts
+drivers/
+error-screenshots/
+webpack.generated.js
+playersMap.json
+.git/

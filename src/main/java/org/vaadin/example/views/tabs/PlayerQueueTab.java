@@ -15,6 +15,7 @@ public class PlayerQueueTab extends VerticalLayout {
 
     List<Player> myPlayers = new ArrayList<>();
     ListDataProvider<Player> filteredPlayersProvider;
+    Grid<Player> grid;
 
     private Player draggedItem;
 
@@ -26,13 +27,18 @@ public class PlayerQueueTab extends VerticalLayout {
 
     private void createQueueTable() {
 
-        Grid<Player> grid = new Grid<>(Player.class, false);
-        grid.addColumn(Player::getName).setHeader("Name").setKey("name");
-        grid.addColumn(Player::getPosition).setHeader("Pos").setKey("pos");
-        grid.addColumn(Player::getTeam).setHeader("Team").setSortable(true);
-        grid.addColumn(Player::getByeWeek).setHeader("Bye").setKey("bye");
-        grid.addColumn(Player::getProjectedPoints).setHeader("Proj.").setKey("proj").setSortable(true);
-        grid.addColumn(Player::getAverageDraftPosition).setHeader("ADP").setKey("ADP").setSortable(true);
+        grid = new Grid<>(Player.class, false);
+        grid.addColumn(Player::getName).setHeader("Name").setKey("name").setAutoWidth(true).setFlexGrow(0);
+        grid.addColumn(Player::getPosition).setHeader("Pos").setKey("pos").setAutoWidth(true).setFlexGrow(0);
+        grid.addColumn(Player::getTeam).setHeader("Team").setSortable(true).setAutoWidth(true).setFlexGrow(0);
+        grid.addColumn(Player::getByeWeek).setHeader("Bye").setKey("bye").setAutoWidth(true).setFlexGrow(0);
+        grid.addColumn(Player::getProjectedPoints).setHeader("Proj.").setKey("proj").setSortable(true).setAutoWidth(true)
+                .setFlexGrow(0);
+        grid.addColumn(Player::getAverageDraftPosition).setHeader("ADP").setKey("ADP").setSortable(true)
+                .setAutoWidth(true).setFlexGrow(0);
+
+        grid.setWidthFull();
+        grid.setHeight("70vh");
 
         GridListDataView<Player> dataView = grid.setItems(filteredPlayersProvider);
         grid.setRowsDraggable(true);
@@ -83,5 +89,7 @@ public class PlayerQueueTab extends VerticalLayout {
             return;
         }
         myPlayers.add(player);
+        filteredPlayersProvider.refreshAll();
+        grid.recalculateColumnWidths();
     }
 }

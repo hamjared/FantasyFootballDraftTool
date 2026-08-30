@@ -20,3 +20,6 @@ drivers/
 error-screenshots/
 webpack.generated.js
 playersMap.json
+
+# Basic auth credentials for nginx - not for source control
+nginx/.htpasswd
